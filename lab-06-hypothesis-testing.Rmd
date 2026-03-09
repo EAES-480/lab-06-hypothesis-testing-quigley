@@ -12,7 +12,7 @@ output:
     code_folding: hide
     df_print: paged
 editor_options:
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
@@ -36,28 +36,28 @@ The core idea is simple:
 
 You will use the **US-AMS simplified AmeriFlux dataset** again and test claims about population means using:
 
-- one sample,
-- a bootstrap estimate of uncertainty,
-- a z-statistic,
-- and a p-value.
+-   one sample,
+-   a bootstrap estimate of uncertainty,
+-   a z-statistic,
+-   and a p-value.
 
 This lab emphasizes **reasoning from claims to tests**, not just mechanics.
 
----
+------------------------------------------------------------------------
 
 # Learning goals
 
 By the end of this lab, you should be able to:
 
-- Turn a verbal claim into a null hypothesis
-- Choose a variable and define the relevant population parameter
-- Draw a sample and estimate a mean
-- Use bootstrap resampling to estimate uncertainty in that mean
-- Compute a z-statistic and p-value
-- Interpret a hypothesis test in plain language
-- Connect confidence intervals and hypothesis tests
+-   Turn a verbal claim into a null hypothesis
+-   Choose a variable and define the relevant population parameter
+-   Draw a sample and estimate a mean
+-   Use bootstrap resampling to estimate uncertainty in that mean
+-   Compute a z-statistic and p-value
+-   Interpret a hypothesis test in plain language
+-   Connect confidence intervals and hypothesis tests
 
----
+------------------------------------------------------------------------
 
 # Data
 
@@ -86,7 +86,7 @@ df <- df %>%
   )
 ```
 
----
+------------------------------------------------------------------------
 
 # Part I — From claim to hypothesis test
 
@@ -94,15 +94,10 @@ df <- df %>%
 
 Choose **one numeric variable** from the dataset.
 
-Possible examples:
-- `swc`
-- `ta`
-- `fc`
-- `gpp`
-- `le`
+Possible examples: - `swc` - `ta` - `fc` - `gpp` - `le`
 
 ```{r choose_variable, echo=TRUE, eval=FALSE}
-target_var <- "___"
+target_var <- "le"
 
 # CHECK: does this variable exist?
 target_var %in% names(df)
@@ -112,46 +107,43 @@ target_var %in% names(df)
 
 Write the population parameter you care about:
 
-> $\mu$ = the true 2023 population mean of `___`
+> $\mu$ = the true 2023 population mean of `latent heat flux`
 
 Fill in the blank in words:
 
-> In this lab, my population parameter is the true annual mean of **`___`** at the US-AMS site.
+> In this lab, my population parameter is the true annual mean of **`latent heat flux`** at the US-AMS site.
 
----
+------------------------------------------------------------------------
 
 ## 3) Make a claim
 
 Write a claim about the population mean for your variable.
 
-Examples:
-- “The annual mean soil water content is 0.30.”
-- “The annual mean air temperature is 10 °C.”
-- “The annual mean latent heat flux is 40 W m$^{-2}$.”
+Examples: - “The annual mean soil water content is 0.30.” - “The annual mean air temperature is 10 °C.” - “The annual mean latent heat flux is 40 W m$^{-2}$.”
 
 Now turn your claim into hypotheses:
 
-- Null hypothesis: $H_0: \mu = \mu_0$
-- Alternative hypothesis: $H_A: \mu \neq \mu_0$
+-   Null hypothesis: $H_0: \mu = \mu_0$
+-   Alternative hypothesis: $H_A: \mu \neq \mu_0$
 
 Fill these in:
 
-> My claim is: `___`
+> My claim is: `The annual mean latent heat flux is 100 W m$^{-2}$.`
 
-> $H_0$: `___`
+> $H_0: \mu = \mu_0$
 
-> $H_A$: `___`
+> $H_A: \mu \neq \mu_0$
 
----
+------------------------------------------------------------------------
 
 ## 4) Draw one sample and compute the sample mean
 
 ```{r draw_sample, echo=TRUE, eval=FALSE}
 # GOAL: Draw one random sample and compute its mean.
 
-set.seed(___)
+set.seed(100)
 
-n_samp <- ___   # e.g., 200
+n_samp <- 200   # e.g., 200
 
 samp <- df %>%
   filter(!is.na(.data[[target_var]])) %>%
@@ -160,22 +152,23 @@ samp <- df %>%
 sample_mean <- mean(samp[[target_var]], na.rm = TRUE)
 
 sample_mean
+
 ```
 
 **Prompt (2–3 sentences):** How does your sample mean compare to your claim? Is it close, or already quite different?
 
-> *Write your answer here.*
+> *It's kind of close, considering the range of values we're working with. Latent heat flux has a range of ~550 units, so being only ~40 units off isn't too bad. It's not terribly different.*
 
----
+------------------------------------------------------------------------
 
 ## 5) Bootstrap the sample mean
 
 ```{r bootstrap_means, echo=TRUE, eval=FALSE}
 # GOAL: Bootstrap the sample mean to estimate uncertainty.
 
-set.seed(___)
+set.seed(100)
 
-B <- ___   # e.g., 4000
+B <- 4000   # e.g., 4000
 
 boot_means <- replicate(
   B,
@@ -191,7 +184,7 @@ head(boot_means)
 # GOAL: Compute the bootstrap SE and 95% CI.
 
 boot_se <- sd(boot_means)
-boot_ci <- quantile(boot_means, probs = c(___, ___))
+boot_ci <- quantile(boot_means, probs = c(0.025, 0.975))
 
 tibble(
   sample_mean = sample_mean,
@@ -203,9 +196,9 @@ tibble(
 
 **Prompt (2–3 sentences):** What does the bootstrap SE tell you? What does the 95% CI tell you?
 
-> *Write your answer here.*
+> *The bootstrap SE tells us the standard deviation of the 4000 bootstrap samples. The 95% CI tells us that 95% of the time, it is expected the 'true' value falls between 52.384 and 76.611. *
 
----
+------------------------------------------------------------------------
 
 ## 7) Convert the claim into a formal test
 
@@ -214,7 +207,7 @@ Define the null value from your claim.
 ```{r hypothesis_test, echo=TRUE, eval=FALSE}
 # GOAL: Compute z and p-value for your claim.
 
-mu0 <- ___   # numeric claim value
+mu0 <- 100   # numeric claim value
 
 z_stat <- (sample_mean - mu0) / boot_se
 
@@ -229,29 +222,30 @@ tibble(
 )
 ```
 
----
+------------------------------------------------------------------------
 
 ## 8) Interpret the result
 
 Use your p-value and CI to answer:
 
-- Does the 95% CI include the null value?
-- Is the p-value small or large?
-- Would you reject the null hypothesis at $\alpha = 0.05$?
+-   Does the 95% CI include the null value?
+-   Is the p-value small or large?
+-   Would you reject the null hypothesis at $\alpha = 0.05$?
 
 Fill in:
 
-> The null value `___` is / is not inside my 95% CI.
+> The null value `100` is not inside my 95% CI. :(
 
-> My p-value is `___`, which is small / large.
+> My p-value is `7.309943e-09`, which is small.
 
-> Therefore, I would / would not reject $H_0$ at the 0.05 level.
+> Therefore, I would reject $H_0$ at the 0.05 level.
 
 **Prompt (4–6 sentences):** Explain your decision in plain language. Do the data make the claim look plausible or surprising? Be careful: “fail to reject” does not mean “prove true.”
 
-> *Write your answer here.*
+> *I said that the average latent heat flux is 100 Watts / square meter. However, the population mean is ~63 units and the 95% confidence interval is 52.38 - 76.61. This gives me a z-score of -5.78, which tells me 2 things: 1) The magnitude is large, meaning that my guess (100) is quite `off`, and 2) my guess is an overshoot (not undershoot) since the z score is negative.*
+> *These data make my claim look surprising. Therefore, I reject the null hypothesis - the data do not support it.*
 
----
+------------------------------------------------------------------------
 
 ## 9) Visualize the hypothesis test
 
@@ -259,7 +253,7 @@ Fill in:
 # GOAL: Plot the bootstrap distribution, sample mean, CI, and null value.
 
 ggplot(tibble(boot_mean = boot_means), aes(x = boot_mean)) +
-  geom_histogram(bins = ___, alpha = 0.8) +
+  geom_histogram(bins = 100, alpha = 0.8) +
   geom_vline(xintercept = sample_mean, linetype = "dashed", linewidth = 1.1) +
   geom_vline(xintercept = boot_ci, color = "red", linewidth = 1.1) +
   geom_vline(xintercept = mu0, color = "blue", linewidth = 1.1) +
@@ -274,9 +268,9 @@ ggplot(tibble(boot_mean = boot_means), aes(x = boot_mean)) +
 
 **Prompt (2–3 sentences):** Does the plot agree with your p-value-based conclusion? Explain.
 
-> *Write your answer here.*
+> *Yes. It shows my guessed mean is outside the 95% CI and above the true mean (which is why the z-score was negative).*
 
----
+------------------------------------------------------------------------
 
 ## 10) Try a second claim (short extension)
 
@@ -285,7 +279,7 @@ Keep the same variable, but test a **different null value**.
 ```{r second_claim, echo=TRUE, eval=FALSE}
 # GOAL: Test a second claim using the same sample and bootstrap SE.
 
-mu0_alt <- ___
+mu0_alt <- 50
 
 z_stat_alt <- (sample_mean - mu0_alt) / boot_se
 p_value_alt <- 2 * pnorm(-abs(z_stat_alt))
@@ -299,24 +293,25 @@ tibble(
 
 **Prompt (3–4 sentences):** How did changing the null value change the conclusion? What does this tell you about the relationship between the null hypothesis and the observed estimate?
 
-> *Write your answer here.*
+> *I made the null value smaller (and closer to the population mean). This changed the sign of the z-score, decreased the z-score magnitude, and increased the p-value. We can no longer reject the null hypothesis; 50 could be the true pop. mean.*
+>*This tells me that the null hypothesis value (50) is closer to the observed estimate (63).*
 
----
+------------------------------------------------------------------------
 
 # Part II — To be added later
 
 We will add additional exercises here on:
 
-- comparing means between groups,
-- one- vs two-sided tests,
-- and connections to t-tests / ANOVA.
+-   comparing means between groups,
+-   one- vs two-sided tests,
+-   and connections to t-tests / ANOVA.
 
 > *Instructor will add this section later. Do not delete this header.*
 
----
+------------------------------------------------------------------------
 
 # Submission
 
-- Knit your `.Rmd` to HTML.
-- Commit and push both the `.Rmd` and knitted `.html` to your GitHub repo.
-- Submit the GitHub repository link on Canvas.
+-   Knit your `.Rmd` to HTML.
+-   Commit and push both the `.Rmd` and knitted `.html` to your GitHub repo.
+-   Submit the GitHub repository link on Canvas.
