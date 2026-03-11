@@ -324,14 +324,14 @@ You will first work with a built-in grouping variable (**day vs night**), then c
 
 If you already created `day_night` earlier, you can reuse it. Otherwise, create it here.
 
-```{r make_daynight, echo=TRUE, eval=FALSE}
+```{r make_daynight, echo=TRUE, eval=T}
 # GOAL: create a day/night grouping variable from `daytime`.
 
 df <- df %>%
   mutate(
-    day_night = if_else(___ == 1, "Day", "Night")
+    day_night = if_else(daytime == 1, "Day", "Night")
   ) %>% 
-  filter(!is.na(___))
+  filter(!is.na(day_night))
 
 df %>% count(day_night)
 ```
@@ -349,8 +349,8 @@ Possible examples:
 - `gpp`
 - `le`
 
-```{r choose_response_ttest, echo=TRUE, eval=FALSE}
-response_var <- "___"
+```{r choose_response_ttest, echo=TRUE, eval=T}
+response_var <- "gpp"
 
 # CHECK: does this variable exist?
 response_var %in% names(df)
@@ -373,7 +373,7 @@ You may use:
 
 df %>%
   filter(!is.na(.data[[response_var]])) %>%
-  ggplot(aes(x = ___, y = ___, fill = ___)) +
+  ggplot(aes(x = day_night, y = gpp, fill = )) +
   geom_boxplot(alpha = 0.8) +
   theme_classic(base_size = 18) +
   labs(
@@ -386,7 +386,7 @@ df %>%
 **Prompt (2–3 sentences):** Before running the test, what do you predict?  
 Do the groups look different in center? In spread?
 
-> *Write your answer here.*
+> *I expected the nighttime gpp to be near zero as there is no sunlight available, however I was surprised there were still values both above and below 0 at night. I am especially surprised at the negative values because gross primary productivity is measuring the amount of energy or carbon fixed during photosynthesis, which couldn't be negative. Statistically, the daytime interquartile spread is much larger than nighttime since so many nighttime values are near 0. *
 
 ---
 
@@ -394,16 +394,16 @@ Do the groups look different in center? In spread?
 
 Compute the group means, SDs, and sample sizes.
 
-```{r summarize_daynight, echo=TRUE, eval=FALSE}
+```{r summarize_daynight, echo=TRUE, eval=T}
 # GOAL: summarize the response variable by day/night group.
 
 group_summary <- df %>%
   filter(!is.na(.data[[response_var]])) %>%
-  group_by(___) %>%
+  group_by(day_night) %>%
   summarise(
-    mean_response = ___,
-    sd_response = ___,
-    n = ___,
+    mean_response = mean(.data[[response_var]]),
+    sd_response = sd(.data[[response_var]]),
+    n = n(),
     .groups = "drop"
   )
 
@@ -423,7 +423,7 @@ Use this structure:
 
 Fill in:
 
-> My response variable is `___`
+> My response variable is `gpp`
 
 > $H_0$: `___`
 
