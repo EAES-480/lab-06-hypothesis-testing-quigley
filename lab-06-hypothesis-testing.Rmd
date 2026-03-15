@@ -146,7 +146,7 @@ Fill these in:
 
 ## 4) Draw one sample and compute the sample mean
 
-```{r draw_sample, echo=TRUE, eval=FALSE}
+```{r draw_sample, echo=TRUE, eval=T}
 # GOAL: Draw one random sample and compute its mean.
 
 set.seed(1350)
@@ -211,7 +211,7 @@ tibble(
 
 Define the null value from your claim.
 
-```{r hypothesis_test, echo=TRUE, eval=FALSE}
+```{r hypothesis_test, echo=TRUE, eval=T}
 # GOAL: Compute z and p-value for your claim.
 
 mu0 <- 0.0   # numeric claim value
@@ -255,7 +255,7 @@ Fill in:
 
 ## 9) Visualize the hypothesis test
 
-```{r plot_test, echo=TRUE, eval=FALSE}
+```{r plot_test, echo=TRUE, eval=T}
 # GOAL: Plot the bootstrap distribution, sample mean, CI, and null value.
 
 ggplot(tibble(boot_mean = boot_means), aes(x = boot_mean)) +
@@ -282,7 +282,7 @@ ggplot(tibble(boot_mean = boot_means), aes(x = boot_mean)) +
 
 Keep the same variable, but test a **different null value**.
 
-```{r second_claim, echo=TRUE, eval=FALSE}
+```{r second_claim, echo=TRUE, eval=T}
 # GOAL: Test a second claim using the same sample and bootstrap SE.
 
 mu0_alt <- 5.5
@@ -368,12 +368,12 @@ You may use:
 - `geom_jitter()`
 - or a combination
 
-```{r plot_daynight, echo=TRUE, eval=FALSE}
+```{r plot_daynight, echo=TRUE, eval=T}
 # GOAL: visualize the response by day/night group.
 
 df %>%
   filter(!is.na(.data[[response_var]])) %>%
-  ggplot(aes(x = day_night, y = gpp, fill = )) +
+  ggplot(aes(x = day_night, y = gpp, fill = day_night)) +
   geom_boxplot(alpha = 0.8) +
   theme_classic(base_size = 18) +
   labs(
@@ -425,9 +425,9 @@ Fill in:
 
 > My response variable is `gpp`
 
-> $H_0$: `___`
+> $H_0: \mu_{\text{Day}} = \mu_{\text{Night}}$
 
-> $H_A$: `___`
+> $H_A: \mu_{\text{Day}} \ne \mu_{\text{Night}}$
 
 ---
 
@@ -435,12 +435,12 @@ Fill in:
 
 Use `t.test()` to compare the means of your response variable between Day and Night.
 
-```{r ttest_daynight, echo=TRUE, eval=FALSE}
+```{r ttest_daynight, echo=TRUE, eval=T}
 # GOAL: run a two-sample t-test by formula.
 
 t.test(
-  ___ ~ ___,
-  data = ___
+  gpp ~ day_night,
+  data = df
 )
 ```
 
@@ -448,7 +448,7 @@ t.test(
 Would you reject the null hypothesis at $\alpha = 0.05$?  
 What does the result imply about day vs night differences in your chosen variable?
 
-> *Write your answer here.*
+> *The p=value is < 2.2e-16 and a 95% CI of 10.91 to 11.43 for the difference between mean gpp for day and night. This p-value is much smaller than 0.05, so I reject the null hypothesis that the two times are equal. The results imply that average gpp is higher during the day by about 0.03. This makes sense because vegetation relies on daylight for photosynthesis. *
 
 ---
 
@@ -456,12 +456,12 @@ What does the result imply about day vs night differences in your chosen variabl
 
 Extract the confidence interval and interpret it as a difference in means.
 
-```{r ttest_store, echo=TRUE, eval=FALSE}
+```{r ttest_store, echo=TRUE, eval=T}
 # GOAL: store the t-test result in an object.
 
 tt_daynight <- t.test(
-  ___ ~ ___,
-  data = ___
+  gpp ~ day_night,
+  data = df
 )
 
 tt_daynight$conf.int
@@ -470,7 +470,7 @@ tt_daynight$conf.int
 **Prompt (2–3 sentences):** Does the confidence interval include 0?  
 How does that connect to the hypothesis test decision?
 
-> *Write your answer here.*
+> *the CI does not include 0 because there is a difference in the mean values between day and night (day had a mean ~ 11.2, whereas night had a mean of ~0). If there were a 0 in the 95% CI of the difference of the mean, that would imply that day and night gpp is likely the same. *
 
 ---
 
@@ -478,19 +478,19 @@ How does that connect to the hypothesis test decision?
 
 Create bootstrap distributions of the **group means** for Day and Night separately.
 
-```{r bootstrap_group_means, echo=TRUE, eval=FALSE}
-set.seed(___)
+```{r bootstrap_group_means, echo=TRUE, eval=T}
+set.seed(01123581321)
 
-B <- ___   # e.g., 2000
+B <- 2001   # e.g., 2000
 
 x_day <- df %>%
   filter(day_night == "Day") %>%
-  pull(___) %>%
+  pull(gpp) %>%
   na.omit()
 
 x_night <- df %>%
   filter(day_night == "Night") %>%
-  pull(___) %>%
+  pull(gpp) %>%
   na.omit()
 
 boot_day <- replicate(
@@ -509,11 +509,11 @@ boot_groups <- bind_rows(
 )
 ```
 
-```{r plot_boot_groups, echo=TRUE, eval=FALSE}
+```{r plot_boot_groups, echo=TRUE, eval=T}
 # GOAL: visualize the bootstrap distributions by group.
 
 ggplot(boot_groups, aes(x = mean_est, fill = group)) +
-  geom_histogram(alpha = 0.45, bins = ___, position = "identity") +
+  geom_histogram(alpha = 0.45, bins = 40, position = "identity") +
   theme_classic(base_size = 18) +
   labs(
     x = paste0("Bootstrap mean of ", response_var),
@@ -525,7 +525,7 @@ ggplot(boot_groups, aes(x = mean_est, fill = group)) +
 **Prompt (3–4 sentences):** How does this bootstrap visualization help you understand the t-test result?  
 Do the plausible group means strongly overlap, or are they clearly separated?
 
-> *Write your answer here.*
+> *This visualization shows how the means are separated and their variability has no overlap, meaning the t-test result of having a p-value < 0.05 makes complete sense. If they overlapped in this figure strongly, that would suggest the results of the t-test were incorrect. However we know that gpp relies on sunlight, so we know there will be a strong day-night signal, which this graph supports.  *
 
 ---
 
@@ -543,20 +543,20 @@ You must:
 - define the grouping variable clearly
 - explain why the grouping is scientifically meaningful
 
-```{r choose_second_group, echo=TRUE, eval=FALSE}
+```{r choose_second_group, echo=TRUE, eval=T}
 # GOAL: create your own two-level grouping variable.
 
 df <- df %>%
   mutate(
-    my_group = ___
-  )
+    # organize by warm and cold months
+    my_group = if_else(month %in% c("Apr","May","Jun","Jul","Aug","Sep"), "Warm", "Cold"))
 
 df %>% count(my_group)
 ```
 
 **Prompt (2–3 sentences):** Why did you choose this grouping variable? What scientific contrast are you testing?
 
-> *Write your answer here.*
+> *warm and cold months may correlate to gpp since there is typically more sunlight available during warm months. This would test whether there is a relationship between the season and mean gpp. * 
 
 ---
 
@@ -569,29 +569,51 @@ Repeat the workflow:
 4. run `t.test()`
 5. interpret
 
-```{r visualize_second_group, echo=TRUE, eval=FALSE}
+```{r visualize_second_group, echo=TRUE, eval=T}
 # GOAL: visualize your response by your chosen grouping variable.
 
-___
+df %>%
+  filter(!is.na(.data[[response_var]])) %>%
+  ggplot(aes(x = my_group, y = gpp, fill = my_group)) +
+  geom_boxplot(alpha = 0.8) +
+  theme_classic(base_size = 18) +
+  labs(
+    x = NULL,
+    y = response_var,
+    title = "Response by day vs night"
+  )
 ```
 
-```{r summarize_second_group, echo=TRUE, eval=FALSE}
+```{r summarize_second_group, echo=TRUE, eval=T}
 # GOAL: summarize your response variable by your chosen grouping variable.
 
-___
+group_summary <- df %>%
+  filter(!is.na(.data[[response_var]])) %>%
+  group_by(my_group) %>%
+  summarise(
+    mean_response = mean(.data[[response_var]]),
+    sd_response = sd(.data[[response_var]]),
+    n = n(),
+    .groups = "drop"
+  )
+
+group_summary
 ```
 
-```{r ttest_second_group, echo=TRUE, eval=FALSE}
+```{r ttest_second_group, echo=TRUE, eval=T}
 # GOAL: run a two-sample t-test for your chosen grouping variable.
 
-___
+t.test(
+  gpp ~ my_group,
+  data = df
+)
 ```
 
 **Prompt (5–6 sentences):** Compare the day/night t-test to your second grouping-variable test.  
 Which contrast was stronger? Which was more scientifically meaningful?  
 Did the two tests produce similar or different conclusions?
 
-> *Write your answer here.*
+> *My day/night t-test had a difference in mean of 11.17, which is slightly larger than my warm/cold season t-test which had a difference in mean of 8.16. The 95% CI was -8.45 to -7.87 and 0 was not included, meaning there is a significant difference in warm and cold season gpp. Both contrasts were large, but the day/night contrast was larger. This suggests that the day/night cycle has a larger impact on gpp than seasonality, which makes sense as gpp drops to near zero at night, whereas there is still some photosynthetic activity outside the warm season, albeit less than during the summer when there is ample sunlight. *
 
 ---
 
@@ -603,7 +625,7 @@ Answer in **4–6 sentences**:
 - What changes when we move from “testing one mean” to “testing a difference in means”?
 - How did the bootstrap group-mean plot help your understanding?
 
-> *Write your answer here.*
+> *The two-sample t-test is similar to the one-mean hypothesis test because both compare samples to a null hypothesis and estimate the uncertainty. The difference is in the two-sample t-test we evaluate whether the difference in means are equal to zero. This means the uncertainty is determined between both groups rather than just one sample. The bootstrap group-mean plot visualized the uncertainty by showing how far apart the mean variability was between the two groups, highlighting how the two groups are different. *
 
 ------------------------------------------------------------------------
 
